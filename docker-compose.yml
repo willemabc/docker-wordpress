@@ -1,0 +1,43 @@
+version: '3'
+services:
+
+    wpmysql:
+        image: mysql:5.7
+        container_name: wpmysql
+        environment:
+            - MYSQL_DATABASE=wordpress
+            - MYSQL_USER=wpuser
+            - MYSQL_PASSWORD=wpsecret
+            - MYSQL_ROOT_PASSWORD=wpsecret
+        volumes:
+            - wpdata:/var/lib/mysql
+        ports:
+            - "3306:3306"
+        networks:
+            - wpnet
+        restart: on-failure
+
+    wordpress:
+        image: wordpress
+        container_name: wordpress
+        depends_on:
+            - wpmysql
+        environment:
+            - WORDPRESS_DB_HOST=wpmysql
+            - WORDPRESS_DB_NAME=wordpress
+            - WORDPRESS_DB_USER=wpuser
+            - WORDPRESS_DB_PASSWORD=wpsecret
+        volumes:
+            - wpfiles:/var/www/html
+            - ./wp-content:/var/www/html/wp-content
+        ports:
+            - "80:80"
+        networks:
+            - wpnet
+        restart: on-failure
+
+volumes:
+    wpdata:
+    wpfiles:
+networks:
+    wpnet:
